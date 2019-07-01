@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+</style>
+<body>
+<div class="alertS" *ngIf="displayP">{{messages}}</div>
+<div class="editor" *ngIf="editFlag">
+  <form>
+      物料号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" value="{{device_edit.productno}}" (keyup)="productnoKeyup($event)"><br><br>
+      工序号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" value="{{device_edit.oprsequenceno}}" (keyup)="oprsequencenoKeyup($event)"><br><br>
+      检验点描述:&nbsp;<input type="text" value="{{device_edit.characteristicdesc}}" (keyup)="characteristicdescKeyup($event)"><br><br>
+      取值关系:&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" value="{{device_edit.relationship}}" (keyup)="relationshipKeyup($event)"><br><br>
+      设备编码:&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" value="{{device_edit.deviceno}}" (keyup)="devicenoKeyup($event)"><br><br>
+      <input type="button" class="btn btn btn-primary" value="确认" (click)="editCommit()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="button" class="btn btn btn-primary" value="取消" (click)="editCancle()">
+  </form>
+</div>
+
+<div class="alertDelete" *ngIf="deleteDisplayFlag">
+
+          <h4 class="modal-title" id="myModalLabel">
+              确认删除吗？
+          </h4><br>
+          <button type="button" (click)="cancleDelete()" class="btn btn-primary">取消
+          </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button type="button" (click)="sureDelete()" class="btn btn-primary">
+              确认
+          </button>
+</div>
+<nav class="navbar navbar-default" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand">CRRC划线仪后台管理</a>
+		</div>
+    <!--<div>-->
+      <!--<input type="text" (change)="searchInput($event)">-->
+      <!--<button class="btn-primary" (click)="searchBtn()">搜索配置</button>-->
+    <!--</div>-->
+
+	</div>
+</nav>
+<hr>
+<br>
+<div class="container" style="width: 1500px; height: 800px; text-align: left;">
+        <div style="width: 350px; height: 800px; display: inline-block; float: left;">
+            <button (click)="uploadButton()" class="btn btn btn-primary">上传设备配置</button>
+            <br><br>
+            <button (click)="updateDeviceConfig('')" class="btn btn btn-primary">显示设备配置</button>
+            <br><br>
+            <!--<button class="btn btn btn-primary">看板计划导入</button>-->
+            <button (click)="createEmployee()" class="btn btn btn-primary">新增人员信息</button>
+            <br><br>
+            <!--<button (click)="updateEmployee()" class="btn btn btn-primary">修改人员信息</button>-->
+            <button (click)="queryEmployee()" class="btn btn btn-primary">查询人员信息</button>
+            <!--<br><br>-->
+            <!--<button class="btn btn btn-primary">删除人员信息</button>-->
+
+        </div>
+        <div style="width: 600px; height: 800px; text-align: left; display: inline-block; margin-left: 0; float: left;" *ngIf="createEmployeeFlag">
+            <h5>新增人员信息</h5>
+          <br>
+            <form>
+                请刷卡:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" maxlength="10" name="cardId" [(ngModel)]="employeeInfo.cardId" #cardId (blur)="checkCardId($event)" (keyup.enter)="getCardId($event)"><pre style="color: red;">{{checkCardIdStr}}</pre>
+                <!--姓  名:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username" [(ngModel)]="employeeInfo.username" (blur)="checkUsername($event)"><pre style="color: red;">{{checkUserNameStr}}</pre>-->
+                编  号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="employeeNo" [(ngModel)]="employeeInfo.employeeNo" (blur)="checkEmployeeNo($event)"><pre style="color: red;">{{checkEmployeeNoStr}}</pre>
+                <button type="button" class="btn btn btn-primary" (click)="createCommit()" >提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="reset" class="btn btn btn-primary">取消</button>
+            </form>
+        </div>
+        <div style="width: 600px; height: 800px; text-align: left; display: inline-block; margin-left: 0; float: left;" *ngIf="queryEmployeeFlag">
+              <h5>查询人员信息</h5>
+            <br>
+            <table border="0" id='tab' class="table table-striped">
+              <tr>
+                <td>姓名</td>
+                <td>编号</td>
+                <td>修改</td>
+                <td>删除</td>
+              </tr>
+              <tr *ngFor="let item of EmployeeInfoList">
+                <td>{{item.NAME}}</td>
+                <td>{{item.EMPLOYEENO}}</td>
+                <td><button (click)="updateEmployee(item)" class="btn-warning">修改</button></td>
+                <td><button (click)="deleteEmployee(item)" class="btn-danger">删除</button></td>
+              </tr>
+            </table>
+          </div>
+        <div style="width: 600px; height: 800px; text-align: left; display: inline-block; margin-left: 0; float: left;" *ngIf="updateEmployeeFlag">
+            <h5>修改人员信息</h5>
+          <br>
+              <form>
+                请刷卡:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" maxlength="10" name="cardId" [(ngModel)]="employeeInfo.cardId" #cardId (blur)="checkCardId($event)" (keyup.enter)="getCardId($event)"><pre style="color: red;">{{checkCardIdStr}}</pre>
+                姓  名:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username" [(ngModel)]="employeeInfo.username" (blur)="checkUsername($event)"><pre style="color: red;">{{checkUserNameStr}}</pre>
+                编  号:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="employeeNo" [(ngModel)]="employeeInfo.employeeNo" (blur)="checkEmployeeNo($event)"><pre style="color: red;">{{checkEmployeeNoStr}}</pre>
+                <button type="button" class="btn btn btn-primary" (click)="updateCommit()" >提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="reset" class="btn btn btn-primary">取消</button>
+            </form>
+
+        </div>
+        <div style="width: 600px; height: 800px; text-align: left; display: inline-block; margin-left: 0; float: left;" *ngIf="uploadFlag">
+            <h5>物料号测量设备关系匹配</h5>
+          <br>
+            设备类型：
+            <select class="btn btn btn-primary" style="height: 43px">
+              <option value="划线仪">划线仪</option>
+            </select>
+            <br><br>
+            设备编码：
+            <select class="btn btn btn-primary">
+              <option *ngFor="let item of devices" value="{{item}}">{{item}}</option>
+            </select>
+            <br>
+            <form action="/api/getdevice" enctype="multipart/form-data" method="POST">
+              <br>
+              <input type="file" name="file" (change)="selectFile($event)"/><br><br>
+              <input type="submit" class="btn btn btn-primary" (click)="uploadBtn($event)" value="上传">&nbsp;
+              <input type="reset" class="btn btn btn-primary" value="取消">
+            </form>
+        </div>
+        <div style="width: 700px; height: 800px;  display: inline-block; margin-left: 0; float: left;" *ngIf="updateDeviceConfigFlag">
+          <table border="0"  class="deviceConfig" class="table table-bordered">
+            <tr>
+              <td>物料号</td>
+              <td>工序号</td>
+              <td>检验点描述</td>
+              <td>取值关系</td>
+              <td>设备类型</td>
+              <td>设备编码</td>
+              <td>编辑</td>
+            </tr>
+            <tr *ngFor="let item of device_list">
+              <td>{{item.productno}}</td>
+              <td>{{item.oprsequenceno}}</td>
+              <td>{{item.characteristicdesc}}</td>
+              <td>{{item.relationship}}</td>
+              <td>{{item.devicetype}}</td>
+              <td>{{item.deviceno}}</td>
+              <td><button (click)="editBtn(item)">修改</button></td>
+            </tr>
+          </table>
+        </div>
+</div>
+</body>
+</html>
